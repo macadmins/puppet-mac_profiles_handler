@@ -9,15 +9,10 @@ define mac_profiles_handler::mdm (
 
   $enrolled = $facts['mdmenrollment']['mdm_enrolled']
 
-  if $type != 'template' {
-    if 'puppet:///modules/' in $file_source {
-      $munged_source = inline_template('<%= @file_source[18..-1] %>')
-      notify{$munged_source: }
-      $input = file($munged_source)
-    }
-    else {
-      $input = $file_source
-    }
+  if 'puppet:///modules/' in $file_source {
+    $munged_source = inline_template('<%= @file_source[18..-1] %>')
+    notify{$munged_source: }
+    $input = file($munged_source)
   } else {
     $input = $file_source
   }
@@ -28,7 +23,7 @@ define mac_profiles_handler::mdm (
     }
   }
 
-  if $enrolled and $type == 'template' {
+  if $enrolled {
 
     $profiles = $facts['profiles']
 
