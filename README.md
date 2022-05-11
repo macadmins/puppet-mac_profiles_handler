@@ -10,6 +10,8 @@ A structured fact is also provided to list installed profiles along with some me
 
 ## Usage
 
+> Local profile installation is non-functional on macOS 11 and newer. Use the method => 'mdm' below.
+
 <pre>
 mac_profiles_handler::manage { 'com.puppetlabs.myprofile':
   ensure  => present,
@@ -39,7 +41,7 @@ You must pass the profilers identifier as your namevar, ensure accepts present o
 
 ### Profile installation via MicroMDM and MDMDirector
 
-Profiles can be sent via MDMDirector and compatible tools. Add your configuration to Hiera (`eyaml` recommended for secrets). Only template style profiles are supported.
+Profiles can be sent via MDMDirector and compatible tools. Add your configuration to Hiera (`eyaml` recommended for secrets).
 
 <pre>
 # MDMDirector information
@@ -50,14 +52,34 @@ mac_profiles_handler::mdmdirector_username: mdmdirector
 mac_profiles_handler::method: mdm
 </pre>
 
-Or you can install only some profiles via MDM
+
+You can install profiles with a mobileconfig file in the module or an ERB template.
+
+<pre>
+mac_profiles_handler::manage { 'com.puppetlabs.myprofile':
+  ensure  => present,
+  file_source => 'puppet:///modules/mymodule/com.puppetlabs.myprofile.mobileconfig',
+  method => 'mdm'
+}
+</pre>
 
 <pre>
 mac_profiles_handler::manage { 'com.puppetlabs.myprofile':
   ensure  => present,
   file_source => template('mymodule/com.puppetlabs.myprofile.erb'),
   type => 'template',
-  method => 'mdm' # or set this to 'local'
+  method => 'mdm'
+}
+</pre>
+
+When ensuring a profile is removed, you must also provide the file_source and method.
+
+<pre>
+mac_profiles_handler::manage { 'com.puppetlabs.myprofile':
+  ensure  => absent,
+  file_source => template('mymodule/com.puppetlabs.myprofile.erb'),
+  type => 'template',
+  method => 'mdm'
 }
 </pre>
 
