@@ -7,7 +7,23 @@ Facter.add(:profiles) do
     profiles = {}
 
     if Facter.value(:os)["release"]["major"].to_i >= 12
-      plist = Puppet::Util::Plist.parse_plist(Facter::Util::Resolution.exec(["/usr/bin/profiles", "-C", "-o", "stdout-xml"].join(" ")))
+      raw_output = Facter::Util::Resolution.exec(["/usr/bin/profiles", "-C", "-o", "stdout-xml"].join(" "))
+      
+      # Some debugging profiles can create additional text lines before and after the actual XML
+      # Strip any additional text before and after the XML
+      xml_output = raw_output
+      if raw_output && raw_output.include?("<?xml")
+        # Find the start of XML
+        xml_start = raw_output.index("<?xml")
+        # Find the end of XML
+        xml_end = raw_output.rindex("</plist>")
+        
+        if xml_start && xml_end
+          xml_output = raw_output[xml_start..xml_end + "</plist>".length - 1]
+        end
+      end
+      
+      plist = Puppet::Util::Plist.parse_plist(xml_output)
 
       if plist.key?("_computerlevel")
         for item in plist["_computerlevel"]
