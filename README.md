@@ -76,3 +76,7 @@ Improve documentation when author isn't presenting the next morning.
 
 Please do!
 Create issues in GitHub, Make Pull Requests, Have Fun!
+
+## macOS Version Compatibility
+
+Tested and compatible with macOS 26 (Tahoe).
