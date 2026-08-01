@@ -33,7 +33,7 @@ define mac_profiles_handler::mdm (
     if $ensure == 'absent' and !has_key($profiles, $payload_identifier) {
       # the profile isn't installed locally, so there's nothing to remove to remove
       notify { "${name} is already absent, skipping removal":,
-        loglevel => 'verbose',
+        loglevel => 'debug',
       }
     } else {
       $mdmdirector_host = lookup('mac_profiles_handler::mdmdirector_host', String)
