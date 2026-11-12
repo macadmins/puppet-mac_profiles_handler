@@ -30,11 +30,22 @@ define mac_profiles_handler::mdm (
   if $enrolled and $type == 'template' {
     $profiles = $facts['profiles']
 
+    # MDMDirector sets each profile's PayloadUUID to a hash of its content
+    # (see mac_profiles_handler::hashed_payload_uuid). If the device already
+    # reports that exact UUID for this identifier, it has this content
+    # installed and the POST would be a no-op, so skip it. It was ~11s of a
+    # ~26s compile with ~40 profiles, one fresh TLS connection each.
+    $already_installed = $ensure != 'absent' and has_key($profiles, $payload_identifier) and (
+      downcase(String($profiles[$payload_identifier]['uuid'])) == mac_profiles_handler::hashed_payload_uuid($input)
+    )
+
     if $ensure == 'absent' and !has_key($profiles, $payload_identifier) {
       # the profile isn't installed locally, so there's nothing to remove to remove
       notify { "${name} is already absent, skipping removal":,
         loglevel => 'debug',
       }
+    } elsif $already_installed {
+      # Device already has this exact content; nothing to send.
     } else {
       $mdmdirector_host = lookup('mac_profiles_handler::mdmdirector_host', String)
       $mdmdirector_username = lookup('mac_profiles_handler::mdmdirector_username', String)

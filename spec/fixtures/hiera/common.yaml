@@ -1,0 +1,4 @@
+---
+mac_profiles_handler::mdmdirector_host: 'https://mdmdirector.example.test'
+mac_profiles_handler::mdmdirector_username: 'mdmdirector'
+mac_profiles_handler::mdmdirector_password: 'pw'
