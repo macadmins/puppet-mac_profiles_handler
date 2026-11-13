@@ -35,7 +35,9 @@ define mac_profiles_handler::mdm (
     # reports that exact UUID for this identifier, it has this content
     # installed and the POST would be a no-op, so skip it. It was ~11s of a
     # ~26s compile with ~40 profiles, one fresh TLS connection each.
-    $already_installed = $ensure != 'absent' and has_key($profiles, $payload_identifier) and (
+    # Guard on Hash: the profiles fact is undef when it fails to resolve, and
+    # has_key raises on a non-hash. A missing fact falls through to the POST.
+    $already_installed = $ensure != 'absent' and $profiles =~ Hash and $payload_identifier in $profiles and (
       downcase(String($profiles[$payload_identifier]['uuid'])) == mac_profiles_handler::hashed_payload_uuid($input)
     )
 

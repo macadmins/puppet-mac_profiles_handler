@@ -102,6 +102,16 @@ describe 'mac_profiles_handler::mdm' do
     end
   end
 
+  context 'when the profiles fact is missing' do
+    let(:title) { 'biz.airbnb.test.nofact' }
+    let(:facts) { super().reject { |k, _| k == 'profiles' } }
+
+    it 'POSTs it instead of failing to compile' do
+      expect(http).to receive(:request).with(an_instance_of(Net::HTTP::Post)).and_return(ok('pushed'))
+      is_expected.to compile
+    end
+  end
+
   context 'when the same content is installed under a different identifier' do
     let(:title) { 'biz.airbnb.test.other' }
     let(:profiles) { { 'biz.airbnb.somethingelse' => { 'uuid' => hashed } } }
